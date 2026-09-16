@@ -1,0 +1,81 @@
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+
+
+class CalculatorApp(App):
+
+    def build(self):
+        self.expression = ""
+
+        main = BoxLayout(
+            orientation="vertical",
+            padding=10,
+            spacing=10
+        )
+
+        self.display = Label(
+            text="0",
+            font_size=40,
+            halign="right",
+            valign="middle",
+            size_hint_y=0.2
+        )
+
+        self.display.bind(size=self.update_text_size)
+        main.add_widget(self.display)
+
+        buttons = [
+            ["C", "⌫", "%", "/"],
+            ["7", "8", "9", "*"],
+            ["4", "5", "6", "-"],
+            ["1", "2", "3", "+"],
+            ["00", "0", ".", "="]
+        ]
+
+        grid = GridLayout(cols=4, spacing=5)
+
+        for row in buttons:
+            for value in row:
+                button = Button(text=value, font_size=25)
+                button.bind(on_press=self.button_press)
+                grid.add_widget(button)
+
+        main.add_widget(grid)
+        return main
+
+    def update_text_size(self, instance, value):
+        instance.text_size = instance.size
+
+    def button_press(self, instance):
+        value = instance.text
+
+        if value == "C":
+            self.expression = ""
+
+        elif value == "⌫":
+            self.expression = self.expression[:-1]
+
+        elif value == "=":
+            try:
+                self.expression = str(eval(self.expression))
+            except:
+                self.expression = "Error"
+
+        elif value == "%":
+            try:
+                self.expression = str(float(self.expression) / 100)
+            except:
+                self.expression = "Error"
+
+        else:
+            if self.expression == "Error":
+                self.expression = ""
+            self.expression += value
+
+        self.display.text = self.expression if self.expression else "0"
+
+
+CalculatorApp().run()
